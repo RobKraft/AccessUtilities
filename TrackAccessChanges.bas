@@ -162,7 +162,7 @@ Private Sub ProcessControls(controls As controls)
         
                 For Each prp In ctl.Properties
                     outputThisProp = False
-                    If prp.Name = "LabelName" Or prp.Name = "Text" Or prp.Name = "SelText" Or prp.Name = "SelStart" Or prp.Name = "SelLength" Or prp.Name = "ListCount" Or prp.Name = "ListIndex" Then
+                    If prp.Name = "LabelName" Or prp.Name = "Text" Or prp.Name = "SelText" Or prp.Name = "SelStart" Or prp.Name = "SelLength" Or prp.Name = "InSelection" Or prp.Name = "ListCount" Or prp.Name = "ListIndex" Then
                     Else
                         If ctl.ControlType = acTextBox Then
                             If prp.Name = "ControlSource" Or prp.Name = "DefaultValue" Then
