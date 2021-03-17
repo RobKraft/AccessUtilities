@@ -288,10 +288,11 @@ Public Sub ExportAllCode()
         If Sfx <> "" Then
             'If Left(c.Name, 16) = "form_frm_product" Then
             c.Export _
-                FileName:=CurrentProject.Path & "\" & _
+                FileName:=CurrentProject.Path & "\" &
                 filen & Sfx
             'End If
         End If
     Next c
 
 End Sub
+'example change 1
