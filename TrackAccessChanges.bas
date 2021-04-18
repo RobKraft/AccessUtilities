@@ -1,6 +1,4 @@
-Attribute VB_Name = "Module1"
-Option Compare Database
-    Dim debuggin As Boolean
+Dim debuggin As Boolean
 Dim filepath As String
 
 'Run this code to export Form Properties, Report Properties, code from Forms, modules, and reports, along with query sources to external files.
@@ -12,10 +10,10 @@ Sub GatherInfo()
     debuggin = False
     filepath = CurrentProject.Path & "\"
 
-    ExportAllCode()
-    robListAllFormProps()
-    robListAllReportProps()
-    robListAllQuerySQL()
+    ExportAllCode
+    robListAllFormProps
+    robListAllReportProps
+    robListAllQuerySQL
 End Sub
 Sub robListAllReportProps()
     Dim rpt As Report
