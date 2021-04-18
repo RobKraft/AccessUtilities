@@ -280,17 +280,10 @@ Public Sub ExportAllCode()
         End Select
 
         filen = c.Name
-        If (Left(filen, 18) = "report_rpt_company") Then
-            If (Right(filen, 7) = "summary") Then
-                filen = "report_rpt_company_YearlySales_Summary"
-            End If
-        End If
         If Sfx <> "" Then
-            'If Left(c.Name, 16) = "form_frm_product" Then
             c.Export _
                 FileName:=CurrentProject.Path & "\" & _
                 filen & Sfx
-            'End If
         End If
     Next c
 
