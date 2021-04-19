@@ -132,6 +132,9 @@ Private Sub ProcessFormOrReportMethods(ctl As Properties)
         If Left(prp.Name, 3) = "Sel" Or Left(prp.Name, 7) = "Current" Or prp.Name = "Picture" Or prp.Name = "ImageData" Or Left(prp.Name, 3) = "prt" Or prp.Name = "PictureData" Or Left(prp.Name, 7) = "Palette" Or Right(prp.Name, 7) = "Palette" Then
             outputThisProp = False
         End If
+        If prp.Name = "Hwnd" Or prp.Name = "WindowWidth" Or prp.Name = "InsideWidth" Then
+            outputThisProp = False
+        End If
 
         If Left(prp.Name, 2) = "On" Then
             If Trim(prp.Value) <> "" Then
