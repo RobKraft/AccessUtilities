@@ -10,10 +10,10 @@ Sub GatherInfo()
     debuggin = False
     filepath = CurrentProject.Path & "\"
 
-    ExportAllCode()
-    robListAllFormProps()
-    robListAllReportProps()
-    robListAllQuerySQL()
+    ExportAllCode
+    robListAllFormProps
+    robListAllReportProps
+    robListAllQuerySQL
 End Sub
 Sub robListAllReportProps()
     Dim rpt As Report
@@ -313,8 +313,7 @@ Public Sub ExportAllCode()
         filen = vbComponent.Name
         If suffix <> "" Then
             vbComponent.Export _
-                filename:=CurrentProject.Path & "\" &
-                filen & suffix
+                filename:=CurrentProject.Path & "\" & filen & suffix
         End If
     Next vbComponent
 
