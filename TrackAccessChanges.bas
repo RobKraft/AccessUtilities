@@ -10,10 +10,10 @@ Sub GatherInfo()
     debuggin = False
     filepath = CurrentProject.Path & "\"
 
-    ExportAllCode
-    robListAllFormProps
-    robListAllReportProps
-    robListAllQuerySQL
+    ExportAllCode()
+    robListAllFormProps()
+    robListAllReportProps()
+    robListAllQuerySQL()
 End Sub
 Sub robListAllReportProps()
     Dim rpt As Report
@@ -44,19 +44,15 @@ Sub robListAllReportProps()
         Set rpt = Application.Reports(rptHolder.Name)
         If debuggin Then
             Debug.Print rpt.Name
-            Debug.Print "RecordSource = " & Trim(rpt.RecordSource)
-            Debug.Print "Filter = " & Trim(rpt.Filter)
-            ProcessFormOrReportMethods rpt.Properties
+            ExportPropertiesOfThisFormOrReport rpt.Properties
             Debug.Print ""
         Else
-            Open filepath & "REPORTPROPSfor_" & rpt.Name & ".txt" For Output As #1
-            Print #1, "RecordSource = " & Trim(rpt.RecordSource)
-            Print #1, "Filter = " & Trim(rpt.Filter)
-            ProcessFormOrReportMethods rpt.Properties
+            Open filepath & "PROPSforRPT_" & rpt.Name & ".txt" For Output As #1
+            ExportPropertiesOfThisFormOrReport rpt.Properties
             Print #1, ""
         End If
 
-        ProcessControls rpt.controls
+        ExportPropertiesOfEachControlOnObject rpt.controls
 
         DoCmd.Close acReport, rpt.Name, acSaveNo
 
@@ -89,21 +85,17 @@ Sub robListAllFormProps()
         
         If debuggin Then
             Debug.Print frm.Name
-            Debug.Print "RecordSource = " & Trim(frm.RecordSource)
-            Debug.Print "Filter = " & Trim(frm.Filter)
-            ProcessFormOrReportMethods frm.Properties
+            ExportPropertiesOfThisFormOrReport frm.Properties
             Debug.Print ""
         Else
             Dim safeFormName As String
             safeFormName = Replace(frm.Name, "/", "slash")
-            Open filepath & "FORMPROPSfor_" & safeFormName & ".txt" For Output As #1
-            Print #1, "RecordSource = " & Trim(frm.RecordSource)
-            Print #1, "Filter = " & Trim(frm.Filter)
-            ProcessFormOrReportMethods frm.Properties
+            Open filepath & "PROPSforFRM_" & safeFormName & ".txt" For Output As #1
+            ExportPropertiesOfThisFormOrReport frm.Properties
             Print #1, ""
         End If
 
-        ProcessControls frm.controls
+        ExportPropertiesOfEachControlOnObject frm.controls
 
 
         DoCmd.Close acForm, frm.Name, acSaveNo
@@ -117,7 +109,61 @@ Sub robListAllFormProps()
 
 
 End Sub
+Private Sub OutputWrite(output As String)
+    If debuggin Then
+        Debug.Print output
+    Else
+        Print #1, output
+    End If
+End Sub
 Private Sub robListAllQuerySQL()
+    Dim outputThisProp As Boolean
+
+    For Each qryd In Application.CurrentDb.TableDefs
+        Open filepath & "TABLE_" & qryd.Name & ".tbl" For Output As #1
+        OutputWrite "TABLE: " & qryd.Name
+
+        If Left(qryd.Name, 1) <> "~" Then
+            For Each prp In qryd.Properties
+                outputThisProp = True
+                If prp.Name = "ConflictTable" Or prp.Name = "ReplicaFilter" Or prp.Name = "NameMap" Or prp.Name = "GUID" Then
+                    outputThisProp = False
+                End If
+
+                If outputThisProp = True Then
+                    OutputWrite vbTab & prp.Name & " " & Trim(prp.Value)
+                End If
+            Next
+            For Each fld In qryd.Fields
+                OutputWrite vbTab & "FIELD: " & qryd.Name & ".[" & fld.Name & "]"
+
+                For Each prp In fld.Properties
+                    outputThisProp = True
+
+                    If prp.Name = "Value" Or prp.Name = "ValidateOnSet" Or prp.Name = "ForeignName" Or prp.Name = "FieldSize" Or prp.Name = "OriginalValue" _
+                     Or prp.Name = "VisibleValue" Or prp.Name = "GUID" Then
+                        outputThisProp = False
+                    End If
+
+                    If outputThisProp = True Then
+                        OutputWrite vbTab & vbTab & prp.Name & " " & Trim(prp.Value)
+                    End If
+                Next
+            Next
+            For Each fld In qryd.Indexes
+                OutputWrite vbTab & "INDEX: " & qryd.Name & ".[" & fld.Name & "]"
+
+                For Each prp In fld.Properties
+                    outputThisProp = True
+                    If outputThisProp = True Then
+                        OutputWrite vbTab & vbTab & prp.Name & " " & Trim(prp.Value)
+                    End If
+                Next
+            Next
+            Close #1
+        End If
+    Next qryd
+
     For Each qryd In Application.CurrentDb.QueryDefs
         If Left(qryd.Name, 1) <> "~" Then
             Open filepath & "QUERY_" & qryd.Name & ".qry" For Output As #1
@@ -126,17 +172,20 @@ Private Sub robListAllQuerySQL()
         End If
     Next qryd
 End Sub
-Private Sub ProcessFormOrReportMethods(ctl As Properties)
+Private Sub ExportPropertiesOfThisFormOrReport(ctl As Properties)
     For Each prp In ctl
         outputThisProp = True
-        If Left(prp.Name, 3) = "Sel" Or Left(prp.Name, 7) = "Current" Or prp.Name = "Picture" Or prp.Name = "ImageData" Or Left(prp.Name, 3) = "prt" Or prp.Name = "PictureData" Or Left(prp.Name, 7) = "Palette" Or Right(prp.Name, 7) = "Palette" Then
+        If Left(prp.Name, 3) = "Sel" Or Left(prp.Name, 7) = "Current" Or prp.Name = "Picture" Or prp.Name = "ImageData" Or LCase(Left(prp.Name, 3)) = "prt" Or prp.Name = "PictureData" Or Left(prp.Name, 7) = "Palette" Then
+            'We get errors trying to export a picture or PaletteSource, or Current..., or SelectionChanged events
             outputThisProp = False
         End If
         If prp.Name = "Hwnd" Or prp.Name = "WindowWidth" Or prp.Name = "InsideWidth" Then
+            'These values are constantly changing - don't want to try to track them
             outputThisProp = False
         End If
 
         If Left(prp.Name, 2) = "On" Then
+            'Methods are properties, but I only want to export ones that have some code linked to them
             If Trim(prp.Value) <> "" Then
                 outputThisProp = True
             Else
@@ -144,6 +193,7 @@ Private Sub ProcessFormOrReportMethods(ctl As Properties)
             End If
         End If
         If (Left(prp.Name, 6) = "Before" Or Left(prp.Name, 5) = "After") Then
+            'Methods are properties, but I only want to export ones that have some code linked to them
             If Trim(prp.Value) <> "" Then
                 outputThisProp = True
             Else
@@ -151,6 +201,7 @@ Private Sub ProcessFormOrReportMethods(ctl As Properties)
             End If
         End If
         If Right(prp.Name, 5) = "Macro" Then
+            'Macros export within their forms, but I only export ones that have code linked to them
             If Trim(prp.Value) <> "" Then
                 outputThisProp = True
             Else
@@ -160,33 +211,29 @@ Private Sub ProcessFormOrReportMethods(ctl As Properties)
         If outputThisProp = True Then
             If debuggin Then
                 Debug.Print prp.Name & " " & Trim(prp.Value)
-                Else
+            Else
                 Print #1, prp.Name & " " & Trim(prp.Value)
-                End If
+            End If
         End If
-        'End If
     Next prp
 End Sub
-Private Sub ProcessControls(controls As controls)
+Private Sub ExportPropertiesOfEachControlOnObject(controls As controls)
     For Each ctl In controls
-        If ctl.ControlType <> acLabel And ctl.ControlType <> acRectangle And ctl.ControlType <> acPage And ctl.ControlType <> acLine _
-            And ctl.ControlType <> acObjectFrame And ctl.ControlType <> acPageBreak And ctl.ControlType <> acTabCtl _
-            And ctl.ControlType <> acImage And ctl.ControlType <> acCommandButton Then
+        If ctl.ControlType <> acObjectFrame Then 'And ctl.ControlType <> acRectangle And ctl.ControlType <> acPage And ctl.ControlType <> acLine _
+            '           And ctl.ControlType <> acObjectLabel And ctl.ControlType <> acPageBreak And ctl.ControlType <> acTabCtl _
+            '           And ctl.ControlType <> acImage And ctl.ControlType <> acCommandButton Then
             If debuggin Then
                 Debug.Print TypeName(ctl) & " - Name = " & ctl.Properties("Name")
-                Else
+            Else
                 Print #1, TypeName(ctl) & " - " & ctl.Properties("Name")
-                End If
+            End If
 
             For Each prp In ctl.Properties
                 outputThisProp = False
-                If prp.Name = "LabelName" Or prp.Name = "InSelection" Or prp.Name = "Text" Or prp.Name = "SelText" Or prp.Name = "SelStart" Or prp.Name = "SelLength" Or prp.Name = "ListCount" Or prp.Name = "ListIndex" Or prp.Name = "PictureData" Or prp.Name = "ImageData" Or Left(prp.Name, 7) = "Palette" Or Right(prp.Name, 7) = "Palette" Then
+                If prp.Name = "LabelName" Or prp.Name = "LpOleObject" Or prp.Name = "InSelection" Or prp.Name = "Text" Or prp.Name = "SelText" Or prp.Name = "SelStart" Or prp.Name = "SelLength" Or prp.Name = "ListCount" Or prp.Name = "ListIndex" Or prp.Name = "PictureData" Or prp.Name = "ImageData" Or Left(prp.Name, 7) = "Palette" Or prp.Name = "ObjectPalette" Then
                 Else
                     outputThisProp = True
                     If ctl.ControlType = acTextBox Then
-                        If prp.Name = "ControlSource" Or prp.Name = "DefaultValue" Then
-                            outputThisProp = True
-                        End If
                         If Left(prp.Name, 16) = "ConditionalFormat" Then
                             If Trim(prp.Value) <> "" Then
                                 outputThisProp = False
@@ -198,33 +245,9 @@ Private Sub ProcessControls(controls As controls)
                                 'https://stackoverflow.com/questions/63839201/access-application-saveastext-read-hex-values
                             End If
                         End If
-                    ElseIf ctl.ControlType = acCheckBox Then
-                        If prp.Name = "ControlSource" Or prp.Name = "DefaultValue" Then
-                            outputThisProp = True
-                        End If
-                    ElseIf ctl.ControlType = acListBox Then
-                        If prp.Name = "ControlSource" Or prp.Name = "ColumnCount" Or prp.Name = "RowSource" Or prp.Name = "RowSourceType" Or prp.Name = "BoundColumn" Then
-                            outputThisProp = True
-                        End If
-                    ElseIf ctl.ControlType = acComboBox Then
-                        If prp.Name = "ControlSource" Or prp.Name = "ColumnCount" Or prp.Name = "RowSource" Or prp.Name = "RowSourceType" Or prp.Name = "BoundColumn" Then
-                            outputThisProp = True
-                        End If
-                    ElseIf ctl.ControlType = acOptionGroup Or ctl.ControlType = acOptionButton Then
-                        If prp.Name = "ControlSource" Then
-                            outputThisProp = True
-                        End If
-                    ElseIf ctl.ControlType = acSubform Or ctl.ControlType = acToggleButton Then
-                        If prp.Name = "SourceObject" Or Left(prp.Name, 4) = "Link" Then
-                            outputThisProp = True
-                        End If
-                    Else
-                        If ctl.ControlType = acRectangle Or ctl.ControlType = acPage Or ctl.ControlType = acLine Or ctl.ControlType = acObjectFrame Or ctl.ControlType = acPageBreak Or ctl.ControlType = acTabCtl Then
-                        Else
-                            outputThisProp = True
-                        End If
                     End If
                     If Left(prp.Name, 2) = "On" Then
+                        'Methods are properties, but I only want to export ones that have some code linked to them
                         If Trim(prp.Value) <> "" Then
                             outputThisProp = True
                         Else
@@ -232,6 +255,7 @@ Private Sub ProcessControls(controls As controls)
                         End If
                     End If
                     If Right(prp.Name, 5) = "Macro" Then
+                        'Macros export within their forms, but I only export ones that have code linked to them
                         If Trim(prp.Value) <> "" Then
                             outputThisProp = True
                         Else
@@ -240,6 +264,7 @@ Private Sub ProcessControls(controls As controls)
                     End If
 
                     If (prp.Name = "BeforeUpdate" Or prp.Name = "AfterUpdate") Then
+                        'Methods are properties, but I only want to export ones that have some code linked to them
                         If Trim(prp.Value) <> "" Then
                             outputThisProp = True
                         Else
@@ -249,9 +274,9 @@ Private Sub ProcessControls(controls As controls)
                     If outputThisProp = True Then
                         If debuggin Then
                             Debug.Print vbTab & prp.Name & " " & Trim(prp.Value)
-                            Else
+                        Else
                             Print #1, vbTab & prp.Name & " " & Trim(prp.Value)
-                            End If
+                        End If
                     End If
                 End If
             Next prp
@@ -261,31 +286,36 @@ Private Sub ProcessControls(controls As controls)
 End Sub
 
 
-
+'This method exports all the Visual Basic code - it will only create files for objects that have code behind them
 Public Sub ExportAllCode()
 
-    Dim c As Variant
-    Dim Sfx As String
+    Dim vbComponent As Variant
+    Dim suffix As String
     Dim filen As String
 
-    For Each c In Application.VBE.VBProjects(1).VBComponents
-        Select Case c.Type
+    'I chose the .bas extension for all files because I view them in Visual Studio and .bas format nicely
+    For Each vbComponent In Application.VBE.VBProjects(1).VBComponents
+        Select Case vbComponent.Type
             Case 2 'vbext_ct_ClassModule, vbext_ct_Document
-                Sfx = ".cls"
+                suffix = ".bas"
             Case 100 'vbext_ct_MSForm
-                Sfx = ".frm"
+                If Left(vbComponent.Name, 6) = "Report" Then
+                    suffix = ".bas"
+                Else
+                    suffix = ".bas"
+                End If
             Case 1 'vbext_ct_StdModule
-                Sfx = ".bas"
+                suffix = ".bas"
             Case Else
-                Sfx = ""
+                suffix = ""
         End Select
 
-        filen = c.Name
-        If Sfx <> "" Then
-            c.Export _
-                FileName:=CurrentProject.Path & "\" & _
-                filen & Sfx
+        filen = vbComponent.Name
+        If suffix <> "" Then
+            vbComponent.Export _
+                filename:=CurrentProject.Path & "\" &
+                filen & suffix
         End If
-    Next c
+    Next vbComponent
 
 End Sub
