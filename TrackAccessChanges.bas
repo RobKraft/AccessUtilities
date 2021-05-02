@@ -292,12 +292,15 @@ Public Sub ExportAllCode()
     Dim vbComponent As Variant
     Dim suffix As String
     Dim filen As String
+    Dim prefix As String 'Prefixes to group all Modules and Classes together
 
     'I chose the .bas extension for all files because I view them in Visual Studio and .bas format nicely
     For Each vbComponent In Application.VBE.VBProjects(1).VBComponents
+        prefix = ""
         Select Case vbComponent.Type
             Case 2 'vbext_ct_ClassModule, vbext_ct_Document
                 suffix = ".bas"
+                prefix = "Class_"
             Case 100 'vbext_ct_MSForm
                 If Left(vbComponent.Name, 6) = "Report" Then
                     suffix = ".bas"
@@ -306,6 +309,7 @@ Public Sub ExportAllCode()
                 End If
             Case 1 'vbext_ct_StdModule
                 suffix = ".bas"
+                prefix = "Module_"
             Case Else
                 suffix = ""
         End Select
@@ -313,8 +317,10 @@ Public Sub ExportAllCode()
         filen = vbComponent.Name
         If suffix <> "" Then
             vbComponent.Export _
-                filename:=CurrentProject.Path & "\" & filen & suffix
+                filename:=CurrentProject.Path & "\" & prefix & filen & suffix
         End If
     Next vbComponent
 
 End Sub
+
+
