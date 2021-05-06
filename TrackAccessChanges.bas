@@ -14,6 +14,7 @@ Sub GatherInfo()
     robListAllFormProps
     robListAllReportProps
     robListAllQuerySQL
+    robListAllTableSQL
 End Sub
 Sub robListAllReportProps()
     Dim rpt As Report
@@ -116,7 +117,9 @@ Private Sub OutputWrite(output As String)
         Print #1, output
     End If
 End Sub
-Private Sub robListAllQuerySQL()
+Private Sub robListAllTableSQL()
+
+
     Dim outputThisProp As Boolean
 
     For Each qryd In Application.CurrentDb.TableDefs
@@ -150,7 +153,12 @@ Private Sub robListAllQuerySQL()
                     End If
                 Next
             Next
+            On Error Resume Next
             For Each fld In qryd.Indexes
+                If Err.Number <> 0 Then
+                    OutputWrite "Error processing table indexes: " & Err.Number & " - " & Err.Description
+                    Exit For
+                End If
                 OutputWrite vbTab & "INDEX: " & qryd.Name & ".[" & fld.Name & "]"
 
                 For Each prp In fld.Properties
@@ -163,6 +171,12 @@ Private Sub robListAllQuerySQL()
             Close #1
         End If
     Next qryd
+    Exit Sub
+
+    
+End Sub
+
+Private Sub robListAllQuerySQL()
 
     For Each qryd In Application.CurrentDb.QueryDefs
         If Left(qryd.Name, 1) <> "~" Then
@@ -317,10 +331,8 @@ Public Sub ExportAllCode()
         filen = vbComponent.Name
         If suffix <> "" Then
             vbComponent.Export _
-                filename:=CurrentProject.Path & "\" & prefix & filen & suffix
+                FileName:=CurrentProject.Path & "\" & prefix & filen & suffix
         End If
     Next vbComponent
 
 End Sub
-
-
