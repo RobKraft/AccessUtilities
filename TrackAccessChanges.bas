@@ -1,6 +1,10 @@
 Dim debuggin As Boolean
 Dim filepath As String
-
+Dim stringOptionsTab(40) As String
+Dim stringOptionsSection(40) As String
+Dim stringOptions(40) As String
+Dim stringOptionsFullName(40) As String
+Dim stringOptionsSource(40) As String
 'Run this code to export Form Properties, Report Properties, code from Forms, modules, and reports, along with query sources to external files.
 'Then you can check the files into a source control repo.  Do this daily and it gives you a good way to keep track of all the changes
 'you made to your access database over time.
@@ -9,12 +13,73 @@ Dim filepath As String
 Sub GatherInfo()
     debuggin = False
     filepath = CurrentProject.Path & "\"
+    exportOptions
 
     ExportAllCode
     robListAllFormProps
     robListAllReportProps
     robListAllQuerySQL
     robListAllTableSQL
+End Sub
+Sub exportOptions()
+    AddOption 0, "Auto Compact", "Compact on Close", "Current Database", "Application Options"
+    AddOption 1, "Remove Personal Information", "Remove personal information from file properties on save", "Current Database", "Application Options"
+    AddOption 2, "Themed Form Controls", "Use Windows-themed Controls on Forms", "Current Database", "Application Options"
+    AddOption 3, "DesignWithData", "Enable Layout View for this database", "Current Database", "Application Options"
+    AddOption 4, "CheckTruncatedNumFields", "Check for truncated number fields", "Current Database", "Application Options"
+    AddOption 5, "Picture Property Storage Format", "Picture Property Storage Format", "Current Database", "Application Options"
+    
+    AddOption 6, "Track Name AutoCorrect Info", "Track Name AutoCorrect Info", "Current Database", "Name AutoCorrect Options"
+    AddOption 7, "Perform Name AutoCorrect", "Perform Name AutoCorrect", "Current Database", "Name AutoCorrect Options"
+    AddOption 8, "Log Name AutoCorrect Changes", "Log Name AutoCorrect Changes", "Current Database", "Name AutoCorrect Options"
+    
+    
+    AddOption 9, "Show Values in Indexed", "Show list of values in, Local indexed fields", "Current Database", "Filter lookup options"
+    AddOption 10, "Show Values in Non-Indexed", "Show list of values in, Local nonindexed fields", "Current Database", "Filter lookup options"
+    AddOption 11, "Show Values in Remote", "Show list of values in, ODBC fields", "Current Database", "Filter lookup options"
+    AddOption 12, "Show Values in Snapshot", "Show list of values in, Records in local snapshot", "Current Database", "Filter lookup options"
+    AddOption 13, "Show Values in Server", "Show list of values in, Records at server", "Current Database", "Filter lookup options"
+    AddOption 14, "Show Values Limit", "Don't display lists where more than this number of records read", "Current Database", "Filter lookup options"
+    
+    AddOption 15, "Default Font Color", "Font color", "Datasheet", "Default colors"
+    AddOption 16, "Default Background Color", "Background color", "Datasheet", "Default colors"
+    AddOption 17, "_64", "Alternate background color", "Datasheet", "Default colors"
+    AddOption 18, "Default Gridlines Color", "Gridlines color", "Datasheet", "Default colors"
+    
+    AddOption 19, "Default Gridlines Horizontal", "Default gridlines showing, Horizontal", "Datasheet", "Gridlines and cell effects"
+    AddOption 20, "Default Gridlines Vertical", "efault gridlines showing, Vertical", "Datasheet", "Gridlines and cell effects"
+    AddOption 21, "Default Cell Effect", "Default cell effect", "Datasheet", "Gridlines and cell effects"
+    AddOption 22, "Default Column Width", "Default Column Width", "Datasheet", "Gridlines and cell effects"
+    
+    AddOption 23, "Default Font Name", "Font", "Datasheet", "Default font"
+    AddOption 24, "Default Font Size", "Size", "Datasheet", "Default font"
+    AddOption 25, "Default Font Weight", "Weight", "Datasheet", "Default font"
+    AddOption 26, "Default Font Underline", "Underline", "Datasheet", "Default font"
+    AddOption 27, "Default Font Italic", "Italic", "Datasheet", "Default font"
+    
+    AddOption 28, "AllowFullMenus", "Allow Full Menus", "Current Database", "Ribbon and Toolbar options", "C"
+    Open filepath & "OPTIONS.txt" For Output As #1
+    
+    Dim i As Integer
+    For i = 0 To 28
+        x = GetOptionValue(i)
+    Next i
+End Sub
+Private Function GetOptionValue(index As Integer) As String
+    If stringOptionsSource(index) = "A" Then
+        GetOptionValue = Application.GetOption(stringOptions(index))
+    End If
+    If stringOptionsSource(index) = "C" Then
+        GetOptionValue = CurrentDb.Properties(stringOptions(index))
+    End If
+    OutputWrite "Tab: " & stringOptionsTab(index) & ", Section: " & stringOptionsSection(index) & ", Option: " & stringOptionsFullName(index) & ", Value: " & GetOptionValue
+End Function
+Private Sub AddOption(index As Integer, optionName As String, optionFullName As String, tabName As String, sectionName As String, Optional source As String = "A")
+    stringOptionsTab(index) = tabName
+    stringOptionsSection(index) = sectionName
+    stringOptions(index) = optionName
+    stringOptionsFullName(index) = optionFullName
+    stringOptionsSource(index) = source
 End Sub
 Sub robListAllReportProps()
     Dim rpt As Report
