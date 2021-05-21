@@ -1,10 +1,10 @@
 Dim debuggin As Boolean
 Dim filepath As String
-Dim stringOptionsTab(40) As String
-Dim stringOptionsSection(40) As String
-Dim stringOptions(40) As String
-Dim stringOptionsFullName(40) As String
-Dim stringOptionsSource(40) As String
+Dim stringOptionsTab(100) As String
+Dim stringOptionsSection(100) As String
+Dim stringOptions(100) As String
+Dim stringOptionsFullName(100) As String
+Dim stringOptionsSource(100) As String
 'Run this code to export Form Properties, Report Properties, code from Forms, modules, and reports, along with query sources to external files.
 'Then you can check the files into a source control repo.  Do this daily and it gives you a good way to keep track of all the changes
 'you made to your access database over time.
@@ -21,7 +21,10 @@ Sub GatherInfo()
     robListAllQuerySQL
     robListAllTableSQL
 End Sub
+
+
 Sub exportOptions()
+'source: https://docs.microsoft.com/en-us/office/vba/access/concepts/settings/set-options-from-visual-basic
     AddOption 0, "Auto Compact", "Compact on Close", "Current Database", "Application Options"
     AddOption 1, "Remove Personal Information", "Remove personal information from file properties on save", "Current Database", "Application Options"
     AddOption 2, "Themed Form Controls", "Use Windows-themed Controls on Forms", "Current Database", "Application Options"
@@ -57,22 +60,105 @@ Sub exportOptions()
     AddOption 26, "Default Font Underline", "Underline", "Datasheet", "Default font"
     AddOption 27, "Default Font Italic", "Italic", "Datasheet", "Default font"
     
-    AddOption 28, "AllowFullMenus", "Allow Full Menus", "Current Database", "Ribbon and Toolbar options", "C"
+    AddOption 28, "Default Text Field Size", "Default Text Field Size", "Object Designers", "Table design"
+    AddOption 29, "Default Number Field Size", "Default Number Field Size", "Object Designers", "Table design"
+    AddOption 30, "Default Field Type", "Default Field Type", "Object Designers", "Table design"
+    AddOption 31, "AutoIndex on Import/Create", "AutoIndex on Import/Create", "Object Designers", "Table design"
+    AddOption 32, "Show Property Update Options Buttons", "Show Property Update Options Buttons", "Object Designers", "Table design"
+    
+    AddOption 33, "Show Table Names", "Show Table Names", "Object Designers", "Query design"
+    AddOption 34, "Output All Fields", "Output All Fields", "Object Designers", "Query design"
+    AddOption 35, "Enable AutoJoin", "Enable AutoJoin", "Object Designers", "Query design"
+    AddOption 36, "ANSI Query Mode", "SQL Server Compatible Syntax (ANSI 92), This database", "Object Designers", "Query design"
+    AddOption 37, "ANSI Query Mode Default", "SQL Server Compatible Syntax (ANSI 92), Default for new databases", "Object Designers", "Query design"
+    AddOption 38, "Query Design Font Name", "Query design font, Font", "Object Designers", "Query design"
+    AddOption 39, "Query Design Font Size", "Query design font, Size", "Object Designers", "Query design"
+    
+    AddOption 40, "Selection Behavior", "Selection Behavior", "Object Designers", "Forms/Reports design"
+    AddOption 41, "Form Template", "Form Template", "Object Designers", "Forms/Reports design"
+    AddOption 42, "Report Template", "Report Template", "Object Designers", "Forms/Reports design"
+    AddOption 43, "Always Use Event Procedures", "Always Use Event Procedures", "Object Designers", "Forms/Reports design"
+    
+    AddOption 44, "Enable Error Checking", "Enable Error Checking", "Object Designers", "Error checking"
+    AddOption 45, "Error Checking Indicator Color", "Error indicator color", "Object Designers", "Error checking"
+    AddOption 46, "Unassociated Label and Control Error Checking", "Check for unassociated label and control", "Object Designers", "Error checking"
+    AddOption 47, "New Unassociated Labels Error Checking", "Check for new unassociated labels", "Object Designers", "Error checking"
+    AddOption 48, "Keyboard Shortcut Errors Error Checking", "Check for keyboard shortcut errors", "Object Designers", "Error checking"
+    AddOption 49, "Invalid Control Properties Error Checking", "Check for invalid control properties", "Object Designers", "Error checking"
+    AddOption 50, "Common Report Errors Error Checking", "Check for common report errors", "Object Designers", "Error checking"
+    
+    AddOption 51, "Spelling ignore words in UPPERCASE", "Ignore words in UPPERCASE", "Proofing", "Correct Spelling"
+    AddOption 52, "Spelling ignore words with number", "Ignore words that contain numbers", "Proofing", "Correct Spelling"
+    AddOption 53, "Spelling ignore Internet and file addresses", "Ignore Internet and file addresses", "Proofing", "Correct Spelling"
+    AddOption 54, "Spelling suggest from main dictionary only", "Suggest from main dictionary only", "Proofing", "Correct Spelling"
+    AddOption 55, "Spelling dictionary language", "Dictionary Language", "Proofing", "Correct Spelling"
+    
+    AddOption 56, "Move After Enter", "Move After Enter", "Advanced", "Editing"
+    AddOption 57, "Behavior Entering Field", "Behavior Entering Field", "Advanced", "Editing"
+    AddOption 58, "Arrow Key Behavior", "Arrow Key Behavior", "Advanced", "Editing"
+    AddOption 59, "Cursor Stops at First/Last Field", "Cursor Stops at First/Last Field", "Advanced", "Editing"
+    AddOption 60, "Default Find/Replace Behavior", "Default Find/Replace Behavior", "Advanced", "Editing"
+    AddOption 61, "Confirm Record Changes", "Confirm Record Changes", "Advanced", "Editing"
+    AddOption 62, "Confirm Document Deletions", "Confirm Document Deletions", "Advanced", "Editing"
+    AddOption 63, "Confirm Action Queries", "Confirm Action Queries", "Advanced", "Editing"
+    AddOption 64, "Default Direction", "Default Direction", "Advanced", "Editing"
+    AddOption 65, "General Alignment", "General Alignment", "Advanced", "Editing"
+    AddOption 66, "Cursor Movement", "Cursor Movement", "Advanced", "Editing"
+    AddOption 67, "Datasheet Ime Control", "Datasheet Ime Control", "Advanced", "Editing"
+    AddOption 68, "Use Hijri Calendar", "Use Hijri Calendar", "Advanced", "Editing"
+    
+    AddOption 69, "Size of MRU File List", "Show this number of Recent Documents", "Advanced", "Display"
+    AddOption 70, "Show Status Bar", "Status bar", "Advanced", "Display"
+    AddOption 71, "Show Animations", "Show Animations", "Advanced", "Display"
+    AddOption 72, "Show Smart Tags on Datasheets", "Show Smart Tags on Datasheets", "Advanced", "Display"
+    AddOption 73, "Show Smart Tags on Forms and Reports", "Show Smart Tags on Forms and Reports", "Advanced", "Display"
+    AddOption 74, "Show Macro Names Column", "Show in Macro Design, Names column", "Advanced", "Display"
+    AddOption 75, "Show Conditions Column", "Show in Macro Design, Conditions column", "Advanced", "Display"
+    
+    AddOption 76, "Left Margin", "Left Margin", "Advanced", "Printing"
+    AddOption 77, "Right Margin", "Right Margin", "Advanced", "Printing"
+    AddOption 78, "Top Margin", "Top Margin", "Advanced", "Printing"
+    AddOption 79, "Bottom Margin", "Bottom Margin", "Advanced", "Printing"
+    
+    AddOption 80, "Provide Feedback with Sound", "Provide Feedback with Sound", "Advanced", "General"
+    AddOption 81, "Four-Digit Year Formatting", "Use four-year digit year formatting, This database", "Advanced", "General"
+    AddOption 82, "Four-Digit Year Formatting All Databases", "Use four-year digit year formatting, All databases", "Advanced", "General"
+    
+    AddOption 83, "Open Last Used Database When Access Starts", "Open Last Used Database When Access Starts", "Advanced", "Advanced"
+    AddOption 84, "Default Open Mode for Databases", "Default open mode", "Advanced", "Advanced"
+    AddOption 85, "Default Record Locking", "Default Record Locking", "Advanced", "Advanced"
+    AddOption 86, "Use Row Level Locking", "Open databases by using record-level locking", "Advanced", "Advanced"
+    AddOption 87, "OLE/DDE Timeout (sec)", "OLE/DDE Timeout (sec)", "Advanced", "Advanced"
+    AddOption 88, "Refresh Interval (sec)", "Refresh Interval (sec)", "Advanced", "Advanced"
+    AddOption 89, "Number of Update Retries", "Number of Update Retries", "Advanced", "Advanced"
+    AddOption 90, "ODBC Refresh Interval (sec)", "ODBC Refresh Interval (sec)", "Advanced", "Advanced"
+    AddOption 91, "Update Retry Interval (msec)", "Update Retry Interval (msec)", "Advanced", "Advanced"
+    AddOption 92, "Ignore DDE Requests", "DDE operations, Ignore DDE requests", "Advanced", "Advanced"
+    AddOption 93, "Enable DDE Refresh", "DDE operations, Enable DDE refresh", "Advanced", "Advanced"
+    AddOption 94, "Command-Line Arguments", "Command-Line Arguments", "Advanced", "Advanced"
+    
+    AddOption 95, "AllowFullMenus", "Allow Full Menus", "Current Database", "Ribbon and Toolbar options", "C"
     Open filepath & "OPTIONS.txt" For Output As #1
     
     Dim i As Integer
-    For i = 0 To 28
+    For i = 0 To 100
         x = GetOptionValue(i)
     Next i
 End Sub
 Private Function GetOptionValue(index As Integer) As String
     If stringOptionsSource(index) = "A" Then
         GetOptionValue = Application.GetOption(stringOptions(index))
+        OutputWrite "Tab: " & stringOptionsTab(index) & ", Section: " & stringOptionsSection(index) & ", Option: " & stringOptionsFullName(index) & ", Value: " & GetOptionValue
     End If
     If stringOptionsSource(index) = "C" Then
-        GetOptionValue = CurrentDb.Properties(stringOptions(index))
+        'GetOptionValue = CurrentDb.Properties(stringOptions(index))
+        Dim i As Integer
+        For i = 0 To CurrentDb.Properties.Count - 1
+            If CurrentDb.Properties(i).Name <> "Connection" Then
+                OutputWrite "CurrentDb.Properties: " & CurrentDb.Properties(i).Name & ", Value: " & CStr(CurrentDb.Properties(i).Value)
+            End If
+        Next i
     End If
-    OutputWrite "Tab: " & stringOptionsTab(index) & ", Section: " & stringOptionsSection(index) & ", Option: " & stringOptionsFullName(index) & ", Value: " & GetOptionValue
 End Function
 Private Sub AddOption(index As Integer, optionName As String, optionFullName As String, tabName As String, sectionName As String, Optional source As String = "A")
     stringOptionsTab(index) = tabName
@@ -81,6 +167,7 @@ Private Sub AddOption(index As Integer, optionName As String, optionFullName As 
     stringOptionsFullName(index) = optionFullName
     stringOptionsSource(index) = source
 End Sub
+
 Sub robListAllReportProps()
     Dim rpt As Report
     Dim reportIsLoaded As Boolean
@@ -401,3 +488,61 @@ Public Sub ExportAllCode()
     Next vbComponent
 
 End Sub
+
+
+
+
+
+
+
+
+Public Sub LinkSQLServerTables()
+'This method relinks the SQL Server tables without using an ODBC DSN
+    Dim strCnnStr As String
+    Dim strCnnStrGED As String
+    Dim db As Database
+    Dim tblDef As TableDef
+    Dim qryDef As QueryDef
+    Dim intI As Integer
+    
+    Set db = CurrentDb
+    
+    SetNameOfSQLServer
+    
+    strCnnStr = GetSQLServerConnString
+    strCnnStrGED = "ODBC;DSN=OrderTrackingGP;DATABASE=" & GBL_GEDSQLDatabaseName & ";AutoTranslate=No;AnsiNPW=No;" _
+        & "Uid=" & GBL_GEDUserName & ";Pwd=" & GBL_GEDPassword & ";"
+    
+    
+    'strCnnStr = "ODBC;DRIVER=SQL Server;SERVER=" & GBL_SQLServerName & "\" & GBL_SQLServerInstanceName & ";DATABASE=" & GBL_SQLDatabaseName & ";Trusted_Connection=Yes;AutoTranslate=No;AnsiNPW=No;"
+    'strCnnStrGED = "ODBC;DRIVER=SQL Server;SERVER=" & GBL_GEDSQLServerName & ";DATABASE=" & GBL_GEDSQLDatabaseName & ";Uid=" _
+    '& GBL_GEDUsername & ";Pwd=" & GBL_GEDPassword & ";AutoTranslate=No;AnsiNPW=No;"
+
+    For intI = 0 To db.TableDefs.Count - 1
+        Set tblDef = db.TableDefs(intI)
+        If Left(tblDef.Name, 4) <> "Msys" And Left(tblDef.Name, 4) <> "~TMP" Then
+            If InStr(tblDef.Connect, "SQL Server") > 0 Or InStr(tblDef.Connect, "ODBC;") > 0 Then ' Skip tables not SQL Server
+                'Debug.Print tblDef.Name
+                If Left(tblDef.Name, 4) = "dbo_" Then
+                    tblDef.Connect = strCnnStrGED
+                    tblDef.RefreshLink
+                Else
+                    'On Error Resume Next
+                    tblDef.Connect = strCnnStr
+                    tblDef.RefreshLink
+                End If
+            End If
+         End If
+    Next intI
+    For intI = 0 To db.QueryDefs.Count - 1
+        Set qryDef = db.QueryDefs(intI)
+        If Left(qryDef.Name, 4) <> "Msys" And Left(qryDef.Name, 4) <> "~TMP" Then
+            If InStr(qryDef.Connect, "SQL Server") > 0 Or InStr(qryDef.Connect, "ODBC;") > 0 Then ' Skip tables not SQL Server
+            'On Error GoTo 0
+                qryDef.Connect = strCnnStr
+            End If
+         End If
+    Next intI
+
+End Sub
+
