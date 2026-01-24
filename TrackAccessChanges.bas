@@ -144,6 +144,7 @@ Sub exportOptions()
     For i = 0 To 100
         x = GetOptionValue(i)
     Next i
+    Close #1
 End Sub
 Private Function GetOptionValue(index As Integer) As String
     If stringOptionsSource(index) = "A" Then
